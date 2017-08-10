@@ -1,0 +1,19 @@
+# A test OBJ file with vertex normals and colors
+
+# Three vertices of a triangle in the x-y plane
+v 0.0 0.0 0.0
+v 1.0 0.0 0.0
+v 0.0 1.0 0.0
+
+# Texture coordinates match (x,y) coordinates
+vt 0.0 0.0
+vt 1.0 0.0
+vt 0.0 1.0
+
+# Three normals
+vn -1.0 -1.0 1.0
+vn 1.0 -1.0 1.0
+vn 1.0 1.0 1.0
+
+# The face (with no texture coordinate specified)
+f 1/1/1 2/2/2 3/3/3

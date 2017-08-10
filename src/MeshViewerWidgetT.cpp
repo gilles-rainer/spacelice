@@ -64,7 +64,7 @@
 // --------------------
 #include <OpenMesh/Core/Utils/vector_cast.hh>
 #include <OpenMesh/Tools/Utils/Timer.hh>
-#include <OpenMesh/Apps/QtViewer/MeshViewerWidgetT.hh>
+#include <OpenMesh/Apps/QtViewer/MeshViewerWidgetT.h>
 
 using namespace OpenMesh;
 using namespace Qt;

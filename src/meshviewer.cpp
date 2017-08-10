@@ -64,7 +64,7 @@
 #include <GL/glut.h>
 #endif
 
-#include "MeshViewerWidget.hh"
+#include "MeshViewerWidget.h"
 
 
 void create_menu(QMainWindow &w);

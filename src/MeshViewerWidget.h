@@ -57,7 +57,7 @@
 #include <QFileDialog>
 #include <OpenMesh/Tools/Utils/getopt.h>
 #include <OpenMesh/Tools/Utils/Timer.hh>
-#include <OpenMesh/Apps/QtViewer/MeshViewerWidgetT.hh>
+#include <OpenMesh/Apps/QtViewer/MeshViewerWidgetT.h>
 #include <OpenMesh/Core/Mesh/TriMesh_ArrayKernelT.hh>
 
 

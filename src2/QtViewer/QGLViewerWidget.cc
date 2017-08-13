@@ -70,7 +70,7 @@
 #include <QDateTime>
 #include <QMouseEvent>
 // --------------------
-#include <OpenMesh/Apps/QtViewer/QGLViewerWidget.hh>
+#include <QtViewer/QGLViewerWidget.hh>
 #include <OpenMesh/Tools/Utils/Timer.hh>
 
 #if !defined(M_PI)
@@ -86,7 +86,7 @@ using namespace OpenMesh;
 
 //== IMPLEMENTATION ========================================================== 
 
-std::string QGLViewerWidget::nomode_ = "";
+
 
 //----------------------------------------------------------------------------
 
@@ -98,8 +98,7 @@ QGLViewerWidget::QGLViewerWidget( QWidget* _parent )
 
 //----------------------------------------------------------------------------
 
-QGLViewerWidget::
-QGLViewerWidget( QGLFormat& _fmt, QWidget* _parent )
+QGLViewerWidget::QGLViewerWidget( QGLFormat& _fmt, QWidget* _parent )
   : QGLWidget( _fmt, _parent )
 {
   init();

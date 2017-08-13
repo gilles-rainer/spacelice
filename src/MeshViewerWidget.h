@@ -57,7 +57,7 @@
 #include <QFileDialog>
 #include <OpenMesh/Tools/Utils/getopt.h>
 #include <OpenMesh/Tools/Utils/Timer.hh>
-#include <OpenMesh/Apps/QtViewer/MeshViewerWidgetT.h>
+#include <MeshViewerWidgetT.h>
 #include <OpenMesh/Core/Mesh/TriMesh_ArrayKernelT.hh>
 
 
@@ -82,8 +82,7 @@ class MeshViewerWidget : public MeshViewerWidgetT<MyMesh>
     Q_OBJECT
 public:
     /// default constructor
-    MeshViewerWidget(QWidget* parent=0) : MeshViewerWidgetT<MyMesh>(parent)
-    {}
+    MeshViewerWidget(QWidget* parent=0) : MeshViewerWidgetT<MyMesh>(parent) {}; 
     OpenMesh::IO::Options& options() { return _options; }
     const OpenMesh::IO::Options& options() const { return _options; }
     void setOptions(const OpenMesh::IO::Options& opts) { _options = opts; }
@@ -116,6 +115,15 @@ public:
         }
     }
 
+	/* VIRTUAL INHERITED METHODS
+	virtual void keyPressEvent( QKeyEvent* _event) {}
+	virtual void draw_scene(const std::string& _draw_mode) {}
+	virtual void draw_openmesh(const std::string& _drawmode) {}
+	virtual bool open_mesh(const char* _filename, OpenMesh::IO::Options _opt) {} 
+	virtual bool open_texture( const char *_filename ) {}
+*/
+
+
 public slots:
     void query_open_mesh_file() {
         QString fileName = QFileDialog::getOpenFileName(this,
@@ -144,6 +152,9 @@ public slots:
 private:
     OpenMesh::IO::Options _options;
 };
+ 
 
+
+ 
 
 #endif

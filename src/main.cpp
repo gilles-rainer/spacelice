@@ -6,7 +6,7 @@
 #include <QMenuBar>
 #include <QFileDialog>
  
-#include "QtViewer/MeshViewerWidget.hh"
+#include "MeshViewerWidget.h"
 #include "GL/glut.h"
 
 

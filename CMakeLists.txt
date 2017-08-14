@@ -10,16 +10,15 @@ set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_SOURCE_DIR}/cmake ${CMAKE_CU
 #set(CMAKE_AUTOMOC ON)
 #set(CMAKE_AUTOUIC ON)
 #set(CMAKE_AUTORCC ON) 
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
  
-include (ACGCommon) 
-include (ACGOutput)
-
 # PROJECTS
 project(spacelice)
   
-# HEADERS AND SOURCE FILES
-include_directories ( src ) 
+# HEADERS AND SOURCE FILES  
+include_directories(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR} src)
 file(GLOB SOURCES "src/*.cpp") 
+file(GLOB HEADERS "src/*.h") 
   
 # OPENGL
 find_package(OpenGL REQUIRED)
@@ -29,19 +28,15 @@ include_directories( ${OPENGL_INCLUDE_DIRS} )
 find_package(GLUT REQUIRED)
 include_directories( ${GLUT_INCLUDE_DIRS} )
 
-
-
-
-
-
 # QT4
+set( QT_QMAKE_EXECUTABLE /usr/bin/qmake)
 find_package(Qt4 COMPONENTS QTCORE QTGUI QTOPENGL REQUIRED) 
 include(${QT_USE_FILE})
 include_directories( ${QT_INCLUDE_DIR} ) 
 add_definitions( ${QT_DEFINITIONS} ) 
 SET(QT_USE_QTOPENGL TRUE)
-
-
+#QT4_WRAP_UI(UISrcs *.ui)
+QT4_WRAP_CPP(MOC_SOURCES ${HEADERS})
 
 # OPENMESH
 find_package(OPENMESH REQUIRED)
@@ -49,14 +44,7 @@ include_directories( ${OPENMESH_INCLUDE_DIR} )
 MESSAGE(STATUS "Found OpenMesh at : ${OPENMESH_INCLUDE_DIR}")
 
 # EXECUTABLE
-#add_executable(spacelice ${SOURCES} )
-acg_drop_templates (sources)
-acg_append_files (headers "*.hh" src) 
-acg_append_files (ui "*.ui" src)
-acg_qt4_autouic (uic_targets ${ui})
-acg_qt4_automoc (moc_targets ${headers})
-acg_add_executable (spacelice ${uic_targets} ${SOURCES} ${headers} ${moc_targets})
+add_executable(spacelice ${SOURCES} ${MOC_SOURCES} )  
   
 # LINKING  
 target_link_libraries (spacelice ${OPENMESH_LIBRARIES} ${QT_LIBRARIES} ${OPENGL_LIBRARIES} ${GLUT_LIBRARY}       ) 
-

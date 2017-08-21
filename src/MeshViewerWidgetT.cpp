@@ -191,6 +191,51 @@ MeshViewerWidgetT<M>::open_mesh(const char* _filename, IO::Options _opt)
       std::clog << "done [" << strips_.n_strips() 
 		<< " strips created in " << t.as_string() << "]\n";
     }
+
+    // base point for displaying vertex curvature
+    { 
+        OpenMesh::Utils::Timer t;
+        t.start();
+        mesh_.add_property(curv);
+ 
+        typename Mesh::VertexIter          v_it, v_end(mesh_.vertices_end());
+        typename Mesh::VertexVertexIter    vvc, vvn, vvp; 
+   
+        for (v_it = mesh_.vertices_begin(); v_it != v_end; ++v_it) { 
+            vvp = mesh_.vv_iter( *v_it ); 
+            vvc = vvp; vvn = vvp; vvc++; vvn++; vvn++; 
+            double curvature = 0.0f;
+                
+            for (vvp = mesh_.vv_iter( *v_it ); vvp; ++vvp) {
+                ++vvc; ++vvn;  
+
+                // USE EIGEN
+                Eigen::Vector3d p ( mesh_.point(*v_it)[0], mesh_.point(*v_it)[1], mesh_.point(*v_it)[2]);  
+                Eigen::Vector3d pi( mesh_.point(*vvp)[0],  mesh_.point(*vvp)[1],  mesh_.point(*vvp)[2] ); 
+                Eigen::Vector3d pj( mesh_.point(*vvc)[0],  mesh_.point(*vvc)[1],  mesh_.point(*vvc)[2] ); 
+                Eigen::Vector3d pk( mesh_.point(*vvn)[0],  mesh_.point(*vvn)[1],  mesh_.point(*vvn)[2] );    
+
+                Eigen::Vector3d vij = pj - pi;
+                Eigen::Vector3d vkj = pj - pk; 
+                Eigen::Vector3d vip = p - pi;
+                Eigen::Vector3d vkp = p - pk;  
+
+                double b1 = vij.dot(vip) / sqrt((vij.cross(vip)).dot((vij.cross(vip)))); //cotangent of the angle between IJ and IP  
+                double b2 = vkj.dot(vkp) / sqrt((vkj.cross(vkp)).dot((vkj.cross(vkp)))); 
+
+                double A1 = sqrt((vij.cross(vip)).dot(vij.cross(vip))) /2; //area of the triangle PIJ
+                double A2 = sqrt((vkj.cross(vkp)).dot(vkj.cross(vkp))) /2;
+
+                curvature += (b1+b2) / sqrt(A1*A2); //discrete Laplace-Beltrami curvature 
+            }  
+            mesh_.property(curv,*v_it) = curvature;
+std::clog<<"curvature is:"<<curvature<<std::endl;
+        } 
+
+        t.stop();
+        std::clog << "Computed base point for displaying current mesh curvature in [" 
+        << t.as_string() << "]" << std::endl;
+    }
     
     //    
 #if defined(WIN32)
@@ -567,17 +612,60 @@ MeshViewerWidgetT<M>::draw_openmesh(const std::string& _draw_mode)
   }
 
 
+
+else if (_draw_mode == "Curvature") // --------------------------------
+  {
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glVertexPointer(3, GL_FLOAT, 0, mesh_.points());
+
+    glEnableClientState(GL_NORMAL_ARRAY);
+    glNormalPointer(GL_FLOAT, 0, mesh_.vertex_normals());
+ 
+    glBegin(GL_TRIANGLES);
+
+    typename M::VertexIter v_end(mesh_.vertices_end()); 
+    float cmin =0.0f, cmax =0.0f; 
+
+    for (typename Mesh::VertexIter v_it =mesh_.vertices_begin(); v_it!=v_end; ++v_it) {
+        double c = mesh_.property(curv,*v_it); 
+        if ( c < cmin)
+            cmin = c;
+        if ( c > cmax)
+            cmax = c;
+    } 
+
+    std::clog << "Minimum cuvature = "<<cmin<<", maximum curvature = "<<cmax<<std::endl;
+    for (; fIt!=fEnd; ++fIt) {
+        fvIt = mesh_.cfv_iter(*fIt);
+        float c = mesh_.property(curv,*fvIt);
+        glColor3f((c-cmin)/(cmax-cmin), 1.0, 1.0f-(c-cmin)/(cmax-cmin));
+        glVertex3f( mesh_.point(*fvIt)[0], mesh_.point(*fvIt)[1], mesh_.point(*fvIt)[2] );
+
+        ++fvIt;
+        c = mesh_.property(curv,*fvIt);
+        glColor3f((c-cmin)/(cmax-cmin), 1.0, 1.0f-(c-cmin)/(cmax-cmin));
+        glVertex3f( mesh_.point(*fvIt)[0], mesh_.point(*fvIt)[1], mesh_.point(*fvIt)[2] );
+
+        ++fvIt;
+        c = mesh_.property(curv,*fvIt);
+        glColor3f((c-cmin)/(cmax-cmin), 1.0, 1.0f-(c-cmin)/(cmax-cmin));
+        glVertex3f( mesh_.point(*fvIt)[0], mesh_.point(*fvIt)[1], mesh_.point(*fvIt)[2] );
+ 
+    }
+    glEnd();
+  
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_NORMAL_ARRAY); 
+  }  
+
+
 }
 
 
 //-----------------------------------------------------------------------------
 
 
-template <typename M>
-void 
-MeshViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
-{
-  
+template <typename M> void MeshViewerWidgetT<M>::draw_scene(const std::string& _draw_mode) { 
   if ( ! mesh_.n_vertices() )
     return;
    
@@ -654,6 +742,13 @@ MeshViewerWidgetT<M>::draw_scene(const std::string& _draw_mode)
     glShadeModel(GL_FLAT);
     draw_openmesh(_draw_mode);
     setDefaultMaterial();
+  }
+
+  else if (_draw_mode == "Curvature")
+  {
+    glDisable(GL_LIGHTING);
+    glShadeModel(GL_SMOOTH);
+    draw_openmesh(_draw_mode); 
   }
   
   else if (_draw_mode == "Smooth Colored Faces" )

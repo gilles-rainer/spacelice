@@ -62,6 +62,7 @@
 #include <OpenMesh/Tools/Utils/StripifierT.hh>
 #include <OpenMesh/Tools/Utils/Timer.hh>
 #include <QGLViewerWidget.h>
+#include <Eigen/Dense>
 
 
 //== FORWARDS =================================================================
@@ -73,13 +74,11 @@ class QImage;
 
 	      
 template <typename M>
-class MeshViewerWidgetT : public QGLViewerWidget
-{
+class MeshViewerWidgetT : public QGLViewerWidget {
 public:
 
   typedef M                             Mesh;
-  typedef OpenMesh::StripifierT<Mesh>   MyStripifier;
-public:
+  typedef OpenMesh::StripifierT<Mesh>   MyStripifier; 
 
   /// default constructor
   MeshViewerWidgetT(QWidget* _parent=0)
@@ -94,6 +93,7 @@ public:
   {
     add_draw_mode("Points");
     add_draw_mode("Hidden-Line");
+    add_draw_mode("Curvature");
 #if defined(OM_USE_OSG) && OM_USE_OSG
     add_draw_mode("OpenSG Indices");
 #endif
@@ -113,8 +113,7 @@ public:
  
   void enable_strips();
   void disable_strips();  
-  
-
+   
   Mesh& mesh() { return mesh_; }
   const Mesh& mesh() const { return mesh_; }
   
@@ -175,22 +174,23 @@ protected: // Strip support
 
 protected: // inherited
    
-  virtual void keyPressEvent( QKeyEvent* _event);
+    virtual void keyPressEvent( QKeyEvent* _event);
 
 protected:
    
-  bool                   f_strips_; // enable/disable strip usage
-  GLuint                 tex_id_;
-  GLint                  tex_mode_;
-  OpenMesh::IO::Options  opt_; // mesh file contained texcoords?
-  
-  Mesh                   mesh_;
-  MyStripifier           strips_;
-  bool                   use_color_;
-  bool                   show_vnormals_;
-  bool                   show_fnormals_;
-  float                  normal_scale_;
-  OpenMesh::FPropHandleT< typename Mesh::Point > fp_normal_base_;
+    bool                   f_strips_; // enable/disable strip usage
+    GLuint                 tex_id_;
+    GLint                  tex_mode_;
+    OpenMesh::IO::Options  opt_; // mesh file contained texcoords?
+
+    Mesh                   mesh_;
+    MyStripifier           strips_;
+    bool                   use_color_;
+    bool                   show_vnormals_;
+    bool                   show_fnormals_;
+    float                  normal_scale_;
+    OpenMesh::FPropHandleT< typename Mesh::Point > fp_normal_base_;
+    OpenMesh::VPropHandleT<double> curv;
 };
 
 

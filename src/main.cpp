@@ -6,7 +6,7 @@
 #include <QMenuBar>
 #include <QFileDialog>
  
-#include "MeshViewerWidget.h"
+#include "SpectralViewer.h"
 #include "GL/glut.h"
 
 
@@ -47,25 +47,25 @@ int main(int argc, char **argv) {
 
 	// create widget
 	QMainWindow mainWin;
-	MeshViewerWidget w(&mainWin);
-	w.setOptions(opt);
-	mainWin.setCentralWidget(&w);
+	SpectralViewer spectralWindow(&mainWin);
+	spectralWindow.setOptions(opt);
+	mainWin.setCentralWidget(&spectralWindow);
 
 	create_menu(mainWin);
 
 	// static mesh, hence use strips
-	w.enable_strips();
+	spectralWindow.enable_strips();
 
 	mainWin.resize(640, 480);
 	mainWin.show();
 
 	// load scene if specified on the command line
 	if ( optind < argc ) {
-		w.open_mesh_gui(argv[optind]);
+		spectralWindow.open_mesh_gui(argv[optind]);
 	}
 
 	if ( ++optind < argc ) {
-		w.open_texture_gui(argv[optind]);
+		spectralWindow.open_texture_gui(argv[optind]);
 	}
 
 	return app.exec();
